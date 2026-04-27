@@ -43,7 +43,7 @@ curl -i http://<host_ip_address>:5000
 Expected: 200 OK and Health message
 
 ### Create User
-curl -i -X POST -H "Content_Type: application/json", -d '{"name": "<enter_name_here>", "age": <enter_age_here>, "sex":"<enter_sex_here>", "email": "<enter_email_here>"}' http://<host_ip_address>:5000/user 
+curl -i -X POST -H "Content-Type: application/json", -d '{"name": "<enter_name_here>", "age": <enter_age_here>, "sex":"<enter_sex_here>", "email": "<enter_email_here>"}' http://<host_ip_address>:5000/user 
 
 Expected: 200 OK and User created message
 
