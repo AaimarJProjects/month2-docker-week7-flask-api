@@ -8,6 +8,8 @@ This is a Python REST API built with Flask, containerized with docker, that cont
 When building each layer Docker caches it. So if the image need to be rebuilt docker reuses what it built before from the previous build in the cache, and only rebuilds the layer that a change was made to, and all the other layers below it. This saves time on builds as docker doesn't have to not have to rebuild each layer.
 
 ### Docker build steps (How to build it)
+
+- v1 (single stage build)
 ```Dockerfile
 FROM python
 WORKDIR /app
@@ -18,6 +20,20 @@ EXPOSE 5000
 CMD ["python", "app.py"]
 ```
 
+- v2 (multi stage build)
+```Dockerfile
+FROM python:3.11 AS builder
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+FROM python:3.11-slim AS runtime
+WORKDIR /app
+COPY --from=builder /usr/local/lib/python3.11/site-packages/ /usr/local/lib/python3.11/site-packages/
+COPY app.py .
+EXPOSE 5000
+CMD ["python", "app.py"]
+```
 ### Explanation of Build Steps
 1) The first line 'FROM python' pulls the official python image from docker hub and uses it as the base.
 2) Second line 'WORKDIR /app', creates a work directory in the image where all my files are stored.
@@ -29,7 +45,11 @@ Originally I had just one copy instruction that copied both requirements.txt and
 7) The last line, line six 'CMD ["python", "app.py"] which runs app.py every time the container starts.
 
 ## How to run it
-To run this image use 'docker run -d -p 5000:5000 aaimarjprojects/flask-api:v1'. 
+- To run v1 of this image use 'docker run -d -p 5000:5000 aaimarjprojects/flask-api:v1'.
+- To run v2 of the image use 'docker run -d -p 5000:5000 aaimarjprojects/flask-api:v2'.
+
+### What is the difference between v1 and v2
+v1 is a single stage build using the full size python image which contains pip and all the build tools that are only needed during the builder process, and are not need to run the image, whereas v2 is a multi stage build, and because of this v2 uses python-slim, a smaller python image during the runtime stage that only contains the tools necessarry to run the app. Having less tools means v2 is faster to pull, faster to deploy, and has a smaller attack surface as an attacker has less tools to exploit if they got in.
 
 ### What each flag in the docker run command does
 -d runs the container in the background so that it doesn't take up space in my terminal and -p publishes port 5000 on my host so that any traffic that comes to port 5000 on the host is forwarded to port 5000 on the container.
