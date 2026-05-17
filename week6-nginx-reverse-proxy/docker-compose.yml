@@ -1,0 +1,30 @@
+services:
+  backend1:
+    image: nginx
+    networks: 
+      - proxynetwork
+    volumes:
+      - ./backend1:/usr/share/nginx/html
+
+  backend2:
+    image: nginx
+    networks:
+      - proxynetwork
+    volumes:
+      - ./backend2:/usr/share/nginx/html
+
+  reverseproxy:
+    image: nginx
+    networks:
+      - proxynetwork
+    ports:
+      - "8080:80"
+    volumes:
+      - ./default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend1
+      - backend2
+
+networks:
+  proxynetwork:
+    driver: bridge 
