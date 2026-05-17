@@ -37,4 +37,4 @@ Week 5 I established what Docker actually is beneath the surface, not just the c
 ## Docker Hub
 
 Public image: `aaimarjprojects/flask-api:v2`
-[View on Docker Hub](https://hub.docker.com/r/aaimarjprojects/flask-api)
+[View on Docker Hub](https://hub.docker.com/r/aaimarjprojects/flask-api/tags)
