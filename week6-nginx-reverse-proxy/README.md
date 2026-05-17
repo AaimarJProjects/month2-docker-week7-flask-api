@@ -4,8 +4,34 @@
 
 Built a multi-container reverse proxy architecture using Docker and Nginx. A single reverse proxy container acts as the public entry point, routing traffic to two isolated backend containers by URL path, the backends are unreachable directly from outside, making the entire system appear as one server to the client.
 
-## Architecture
+## The Request Journey
 
+A browser visits http://<ubuntu-ip>:8080/backend1/
+Here is exactly what happens:
+```
+1) REQUEST HITS THE HOST
+   Port 8080 on the Ubuntu server receives the request
+   Docker's port mapping translates it and forwards it into reverseproxy on port 80
+
+2) REVERSE PROXY READS THE REQUEST
+   Nginx reads the HTTP header
+   Matches path /backend1/ against its location blocks
+   Sends the request to container named backend1 via proxy_pass
+
+3) DOCKER DNS RESOLVES THE NAME
+   backend1 is a name, not an IP
+   Docker DNS on proxynetwork translates it to backend1's actual IP
+   Request arrives at backend1 container
+
+4) BACKEND SERVES THE RESPONSE
+   backend1's Nginx finds index.html at /usr/share/nginx/html
+   Sends the response back to reverseproxy
+
+5) RESPONSE RETURNS TO BROWSER
+   reverseproxy passes it back through Docker's port mapping
+   Host sends it back to the browser
+   The browser never knew backend1 existed
+```
 
 
 ## How the Request Path Works
